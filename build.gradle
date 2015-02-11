@@ -1,0 +1,127 @@
+// Gradle repositories and dependencies
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+    }
+}
+
+// Apply plugin
+apply plugin: 'java'
+apply plugin: 'license'
+apply plugin: 'checkstyle'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+
+// Default tasks
+defaultTasks 'check', 'build'
+
+// Basic project information
+group = 'us.zingalicio'
+archivesBaseName = 'cordstone'
+version = '1.1-SNAPSHOT'
+
+ext.projectName = 'Cordstone'
+ext.inceptionYear = '2013'
+ext.packaging = 'jar'
+ext.url = 'http://zingalicio.us'
+ext.description = 'Cordstone for Sponge'
+ext.organization = 'Zingalicious'
+
+// Minimum version of Java required
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+// Project repositories
+repositories {
+    mavenCentral()
+    maven {
+    	url "http://repo.spongepowered.org/maven"
+    	}
+    maven {
+    	url "http://zingalicio.us/repo"
+    }
+}
+
+configurations {
+    deployerJars // maven stuff
+}
+
+// Project dependencies
+dependencies {
+    runtime 'org.spongepowered:spongeapi:1.1-SNAPSHOT'
+
+    checkstyle 'com.puppycrawl.tools:checkstyle:6.1.1'
+    
+    // maven
+    deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
+}
+
+// Filter, process, and include resources
+processResources {
+    // Include in final JAR
+    from 'LICENSE.txt'
+}
+
+// License header formatting
+license {
+    ext.name = project.name
+    ext.organization = project.organization
+    ext.url = project.url
+    ext.year = project.inceptionYear
+    exclude "**/*.info"
+    exclude "assets/**"
+    header file('HEADER.txt')
+    sourceSets = project.sourceSets
+    ignoreFailures false
+    strictCheck true
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
+}
+
+checkstyle {
+    configFile = file('checkstyle.xml')
+    configProperties = [
+            "name": project.name,
+            "organization": project.organization,
+            "url": project.url,
+            "year": project.inceptionYear,
+            "suppressions": file('checkstyle-suppressions.xml')
+    ]
+}
+
+// Source compiler configuration
+configure([compileJava, compileTestJava]) {
+    options.compilerArgs += ['-Xlint:all', '-Xlint:-path']
+    options.deprecation = true
+    options.encoding = 'utf8'
+}
+
+task sourceJar(type: Jar) {
+	from sourceSets.main.java
+	from sourceSets.main.resources
+	classifier = "sources"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	from javadoc.destinationDir
+	classifier = "javadoc"
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+}
+
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			repository(url: "file://zingalicio.us/repo/")
+		}
+	}
+}
