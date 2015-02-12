@@ -56,7 +56,7 @@ public abstract class ZingPlugin
 		}
 		catch (SecurityException exception)
 		{
-			logger.error("Could not create configuration directory.");
+			logger.error("Unable to create configuration directory.");
 		}
 		
 		try 
