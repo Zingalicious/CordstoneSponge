@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'eclipse'
 
 // Default tasks
-defaultTasks 'check', 'build', 'install'
+defaultTasks 'check', 'build', 'uploadArchives'
 
 // Basic project information
 group = 'us.zingalicio'
@@ -52,4 +52,33 @@ configure([compileJava, compileTestJava]) {
 
 artifacts {
     archives jar
+}
+
+uploadArchives {
+    repositories {
+
+        mavenDeployer {
+            configuration = configurations.deployerJars
+
+            repository(url: "file://C:/Users/Zingten/.m2/repository/")
+
+            pom {
+                groupId = project.group
+                version = project.version
+                artifactId = project.archivesBaseName
+                project {
+                    name project.archivesBaseName
+                    packaging 'jar'
+                    description 'Cordstone'
+                    url 'http://zingalicio.us/'
+
+                    scm {
+                        url 'https://github.com/Zingalicious/CordstoneSponge'
+                        connection 'scm:git:git://github.com/Zingalicious/CordstoneSponge.git'
+                        developerConnection 'scm:git:git@github.com:Zingalicious/CordstoneSponge.git'
+                    }
+                }
+            }
+        }
+    }
 }
