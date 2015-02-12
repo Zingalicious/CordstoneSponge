@@ -1,2 +1,2 @@
 # CordstoneSponge
-Cordstone! For the SpongeAPI!
+Zingalicious' core plugin, now for the Sponge API!
